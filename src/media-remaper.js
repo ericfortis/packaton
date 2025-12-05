@@ -36,14 +36,14 @@ export async function renameMediaWithHashes(dir) {
  * instead of checking `="` (e.g. src="img.png") also checks for `url(`
  **/
 export function remapMediaInHTML(mediaHashes, html) {
-	const reFindMedia = new RegExp('(="media/.*?)"', 'g')
-	const reFindMediaKey = new RegExp('="media/')
+	const reFindMedia = new RegExp('(="static/media/.*?)"', 'g')
+	const reFindMediaKey = new RegExp('="static/media/')
 
 	for (const [, url] of html.matchAll(reFindMedia)) {
 		const hashedName = mediaHashes.get(url.replace(reFindMediaKey, ''))
 		if (!hashedName)
 			throw `ERROR: Missing ${url}\n`
-		html = html.replace(url, `="media/${hashedName}`)
+		html = html.replace(url, `="static/media/${hashedName}`)
 	}
 	return html
 }

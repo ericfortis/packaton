@@ -18,7 +18,7 @@ export async function buildStaticPages(config) {
 	return new Promise((resolve, reject) => {
 		const pSource = config.srcPath
 		const pDist = config.outputPath
-		const pDistMedia = join(config.outputPath, 'media')
+		const pDistMedia = join(config.outputPath, 'static', 'media')
 		const pDistSitemap = join(pDist, 'sitemap.txt')
 		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
 		const pSizesReport = 'packed-sizes.json'
@@ -33,7 +33,7 @@ export async function buildStaticPages(config) {
 				}
 
 				removeDir(pDist)
-				cpSync(join(pSource, 'media'), pDistMedia, {
+				cpSync(join(pSource, 'static'), join(pDist, 'static'), {
 					recursive: true,
 					dereference: true,
 					filter(src) {
@@ -67,9 +67,9 @@ export async function buildStaticPages(config) {
 				if (config.cspMapEnabled) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
 						`${route} "${csp}";`).join('\n'))
-					
+
 					// cloudflare 
-					write(pDistMedia + '/_headers', cspByRoute.map(([route, csp]) => {
+					write(join(pDist, 'static', '_headers'), cspByRoute.map(([route, csp]) => {
 						const r = route === '/index' ? '/' : route
 						return `${r}\n  Content-Security-Policy: ${csp}`
 					}).join('\n'))
