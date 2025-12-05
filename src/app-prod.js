@@ -69,10 +69,7 @@ export async function buildStaticPages(config) {
 						`${route} "${csp}";`).join('\n'))
 
 					// cloudflare 
-					write(join(pDist, 'static', '_headers'), cspByRoute.map(([route, csp]) => {
-						const r = route === '/index' ? '/' : route
-						return `${r}\n  Content-Security-Policy: ${csp}`
-					}).join('\n'))
+					write(join(pDist, 'static', '_headers'), makeHeadersFile(cspByRoute))
 				}
 
 				reportSizes(pSizesReport, pDist, docs.routes.map(f => f + config.outputExtension))
@@ -88,6 +85,16 @@ export async function buildStaticPages(config) {
 			}
 		})
 	})
+}
+
+function makeHeadersFile(cspByRoute) {
+	const cspHeaders = cspByRoute.map(([route, csp]) => {
+		const r = route === '/index' ? '/' : route
+		return `${r}\n  Content-Security-Policy: ${csp}`
+	})
+	cspHeaders.push('/static/media/*')
+	cspHeaders.push('  Cache-Control: public,max-age=31536000,immutable')
+	return cspHeaders.join('\n')
 }
 
 
