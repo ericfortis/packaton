@@ -3,7 +3,7 @@ import { read, sizeOf, sha1, saveAsJSON, isFile } from './fs-utils.js'
 
 
 export function reportSizes(reportFilename, baseDir, files) {
-	const oldReport = isFile(reportFilename) 
+	const oldReport = isFile(reportFilename)
 		? JSON.parse(read(reportFilename))
 		: {}
 	const newReport = {}

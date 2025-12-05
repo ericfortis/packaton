@@ -12,6 +12,7 @@ export interface Config {
 	
 	// Production
 	outputPath?: string
+	outputExtension?: string
 	minifyJS?: (js: string) => Promise<string>
 	minifyCSS?: (css: string) => Promise<string>
 	minifyHTML?: (html: string) => Promise<string>

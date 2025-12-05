@@ -54,7 +54,7 @@ export async function buildStaticPages(config) {
 					// TODO remap media in css and js
 					await doc.inlineMinifiedCSS()
 					await doc.inlineMinifiedJS()
-					write(pDist + route, doc.html)
+					write(pDist + route + config.outputExtension, doc.html)
 					cspByRoute.push([route, doc.csp()])
 				}
 
@@ -68,7 +68,7 @@ export async function buildStaticPages(config) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
 						`${route} "${csp}";`).join('\n'))
 
-				reportSizes(pSizesReport, pDist, docs.routes)
+				reportSizes(pSizesReport, pDist, docs.routes.map(f => f + config.outputExtension))
 			}
 			catch (error) {
 				reject(error)

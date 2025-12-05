@@ -26,6 +26,7 @@ const schema = {
 	hotReload: [true, is(Boolean)],
 
 	// Production
+	outputExtension: ['.html', optional(String)],
 	outputPath: ['dist', optional(String)], // TODO resolve
 	minifyJS: [minifyJS, optional(Function)],
 	minifyCSS: [minifyCSS, optional(Function)],
