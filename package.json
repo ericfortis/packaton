@@ -1,8 +1,9 @@
 {
 	"name": "packaton",
 	"version": "0.0.1",
-	"private": true,
 	"type": "module",
+	"author": "Eric Fortis",
+	"license": "MIT",
 	"scripts": {
 		"test": "node --test",
 		"outdated": "npm outdated --parseable | awk -F: '{ printf \"npm i %-30s ;# %s\\n\", $4, $2 }'"
