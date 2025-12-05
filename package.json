@@ -1,0 +1,22 @@
+{
+	"name": "packaton",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "node --test",
+		"outdated": "npm outdated --parseable | awk -F: '{ printf \"npm i %-30s ;# %s\\n\", $4, $2 }'"
+	},
+	"exports": {
+		".": {
+			"import": "./index.js",
+			"types": "./index.d.ts"
+		}
+	},
+	"peerDependencies": {
+		"terser": "^5"
+	},
+	"devDependencies": {
+		"terser": "5.44.1"
+	}
+}

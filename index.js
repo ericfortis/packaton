@@ -1,0 +1,6 @@
+export { Packaton } from './src/app.js'
+export { HtmlCompiler } from './src/HtmlCompiler.js'
+export { minifyHTML } from './src/minifyHTML.js'
+export { minifyCSS } from './src/minifyCSS.js'
+export { minifyJS } from './src/minifyJS.js'
+export { reportSizes } from './src/reportSizes.js'
