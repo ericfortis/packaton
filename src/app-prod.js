@@ -64,9 +64,16 @@ export async function buildStaticPages(config) {
 						.map(r => `https://${config.sitemapDomain + r}`)
 						.join('\n'))
 
-				if (config.cspMapEnabled)
+				if (config.cspMapEnabled) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
 						`${route} "${csp}";`).join('\n'))
+					
+					// cloudflare 
+					write(pDistMedia + '/_headers', cspByRoute.map(([route, csp]) => {
+						const r = route === '/index' ? '/' : route
+						return `${r}\n  Content-Security-Policy: ${csp}`
+					}).join('\n'))
+				}
 
 				reportSizes(pSizesReport, pDist, docs.routes.map(f => f + config.outputExtension))
 			}
