@@ -6,7 +6,7 @@ import { docs } from './app.js'
 import { router } from './app-router.js'
 import { reportSizes } from './reportSizes.js'
 import { HtmlCompiler } from './HtmlCompiler.js'
-import { write, removeDir } from './fs-utils.js'
+import { write, removeDir, isFile } from './fs-utils.js'
 import { renameMediaWithHashes } from './media-remaper.js'
 
 
@@ -25,7 +25,7 @@ export async function buildStaticPages(config) {
 		const pDistSitemap = join(pDist, 'sitemap.txt')
 		const pDistRobots = join(pDist, 'robots.txt')
 		const pSizesReport = 'packed-sizes.json'
-		
+
 		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
 		const CLOUDFLARE_HEADERS_FILE = join(pDistStatic, '_headers')
 
@@ -74,19 +74,22 @@ export async function buildStaticPages(config) {
 						.filter(r => r !== '/index')
 						.map(r => `https://${config.sitemapDomain + r}`)
 						.join('\n'))
-					// TODO if robots.txt doesn't exist
-					write(pDistRobots, `Sitemap: https://${config.sitemapDomain}/sitemap.txt`)
+
+					if (!isFile(pDistRobots))
+						write(pDistRobots,
+							`Sitemap: https://${config.sitemapDomain}/sitemap.txt`)
 				}
 
 				if (config.cspMapEnabled) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
 						`${route} "${csp}";`).join('\n'))
 
-					write(CLOUDFLARE_HEADERS_FILE, 
+					write(CLOUDFLARE_HEADERS_FILE,
 						makeHeadersFile(cspByRoute, MEDIA_REL_URL))
 				}
 
-				reportSizes(pSizesReport, pDist, docs.routes.map(f => f + config.outputExtension))
+				reportSizes(pSizesReport, pDist, 
+					docs.routes.map(f => f + config.outputExtension))
 			}
 			catch (error) {
 				reject(error)
@@ -105,7 +108,7 @@ export async function buildStaticPages(config) {
 function makeHeadersFile(cspByRoute, MEDIA_URL) {
 	const cspHeaders = cspByRoute.map(([route, csp]) => {
 		const r = route === '/index'
-			? '/' 
+			? '/'
 			: route
 		return `${r}\n  Content-Security-Policy: ${csp}`
 	})
