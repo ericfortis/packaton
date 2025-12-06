@@ -24,8 +24,10 @@ export async function buildStaticPages(config) {
 		const pDistMedia = join(pDist, MEDIA_REL_URL)
 		const pDistSitemap = join(pDist, 'sitemap.txt')
 		const pDistRobots = join(pDist, 'robots.txt')
-		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
 		const pSizesReport = 'packed-sizes.json'
+		
+		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
+		const CLOUDFLARE_HEADERS_FILE = join(pDistStatic, '_headers')
 
 		const server = http.createServer(router(config))
 		server.listen(0, '127.0.0.1', async error => {
@@ -80,7 +82,7 @@ export async function buildStaticPages(config) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
 						`${route} "${csp}";`).join('\n'))
 
-					write(join(pDistStatic, '_headers'), 
+					write(CLOUDFLARE_HEADERS_FILE, 
 						makeHeadersFile(cspByRoute, MEDIA_REL_URL))
 				}
 
@@ -99,10 +101,10 @@ export async function buildStaticPages(config) {
 	})
 }
 
-// For Cloudflare
+// TODO @ThinkAbout in Nginx we need to use `/index` but in CF `/`
 function makeHeadersFile(cspByRoute, MEDIA_URL) {
 	const cspHeaders = cspByRoute.map(([route, csp]) => {
-		const r = route === '/index'  // TODO replace in route parser instead
+		const r = route === '/index'
 			? '/' 
 			: route
 		return `${r}\n  Content-Security-Policy: ${csp}`
