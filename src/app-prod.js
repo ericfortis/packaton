@@ -20,6 +20,7 @@ export async function buildStaticPages(config) {
 		const pDist = config.outputPath
 		const pDistMedia = join(config.outputPath, 'static', 'media')
 		const pDistSitemap = join(pDist, 'sitemap.txt')
+		const pDistRobots = join(pDist, 'robots.txt')
 		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
 		const pSizesReport = 'packed-sizes.json'
 
@@ -58,11 +59,14 @@ export async function buildStaticPages(config) {
 					cspByRoute.push([route, doc.csp()])
 				}
 
-				if (config.sitemapDomain)
+				if (config.sitemapDomain) {
 					write(pDistSitemap, docs.routes
 						.filter(r => r !== '/index')
 						.map(r => `https://${config.sitemapDomain + r}`)
 						.join('\n'))
+					// TODO if robots.txt doesn't exist
+					write(pDistRobots, `Sitemap: https://${config.sitemapDomain}/sitemap.txt`)
+				}
 
 				if (config.cspMapEnabled) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
