@@ -45,6 +45,6 @@ To avoid minifying, you can pass `a=>a`
 - can't write inline scripts or css (all must be in an external file, packaton inlines them)
 - must have an index
 - Ignored Documents start with `_`, so you can't have routes that begin with _
-- Non-Documents and Files outside .media are not automatically copied over,
+- Non-Documents and Files outside /static are not automatically copied over,
   you need to specify them. 
-- src/media only files at the top level get hashed-named. But files within subdirs are not (by design).
+- static/media only files at the top level get hashed-named. But files within subdirs are not (by design).
