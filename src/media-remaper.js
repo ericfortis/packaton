@@ -21,7 +21,6 @@ export async function renameMediaWithHashes(dir) {
 	return mediaHashes
 }
 
-// TODO if media is made configurable, we'd need to espace the regex for example .media -> \.media
 // Having one dir is kinda nice for nginx headers, but that's not an excuse nor solves nested dirs with same filename
 
 // TODO for (b of base) find and replace base with new hash
@@ -35,17 +34,22 @@ export async function renameMediaWithHashes(dir) {
  * If you want to handle CSS files, edit the regex so
  * instead of checking `="` (e.g. src="img.png") also checks for `url(`
  **/
-export function remapMediaInHTML(mediaHashes, html) {
-	const reFindMedia = new RegExp('(="static/media/.*?)"', 'g')
-	const reFindMediaKey = new RegExp('="static/media/')
+export function remapMediaInHTML(mediaHashes, html, mediaRelUrl) {
+	const mURL = escapeForRegex(mediaRelUrl)
+	const reFindMedia = new RegExp(`(="${mURL}/.*?)"`, 'g')
+	const reFindMediaKey = new RegExp(`="${mURL}/`)
 
 	for (const [, url] of html.matchAll(reFindMedia)) {
 		const hashedName = mediaHashes.get(url.replace(reFindMediaKey, ''))
 		if (!hashedName)
 			throw `ERROR: Missing ${url}\n`
-		html = html.replace(url, `="static/media/${hashedName}`)
+		html = html.replace(url, `="${mediaRelUrl}/${hashedName}`)
 	}
 	return html
 }
 
+
+function escapeForRegex(literal) {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
 

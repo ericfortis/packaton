@@ -16,9 +16,12 @@ import { renameMediaWithHashes } from './media-remaper.js'
  */
 export async function buildStaticPages(config) {
 	return new Promise((resolve, reject) => {
+		const MEDIA_REL_URL = join(config.staticDir, 'media')
+
 		const pSource = config.srcPath
 		const pDist = config.outputPath
-		const pDistMedia = join(config.outputPath, 'static', 'media')
+		const pDistStatic = join(config.outputPath, config.staticDir)
+		const pDistMedia = join(pDist, MEDIA_REL_URL)
 		const pDistSitemap = join(pDist, 'sitemap.txt')
 		const pDistRobots = join(pDist, 'robots.txt')
 		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
@@ -34,7 +37,7 @@ export async function buildStaticPages(config) {
 				}
 
 				removeDir(pDist)
-				cpSync(join(pSource, 'static'), join(pDist, 'static'), {
+				cpSync(join(pSource, config.staticDir), pDistStatic, {
 					recursive: true,
 					dereference: true,
 					filter(src) {
@@ -49,7 +52,12 @@ export async function buildStaticPages(config) {
 
 				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
-					const doc = new HtmlCompiler(rawHtml, join(pSource, dirname(route)), config)
+					const doc = new HtmlCompiler(rawHtml, join(pSource, dirname(route)), {
+						minifyJS: config.minifyJS,
+						minifyCSS: config.minifyCSS,
+						minifyHTML: config.minifyHTML,
+						mediaRelUrl: MEDIA_REL_URL
+					})
 					await doc.minifyHTML()
 					doc.remapMedia(mediaHashes)
 					// TODO remap media in css and js
@@ -72,8 +80,8 @@ export async function buildStaticPages(config) {
 					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
 						`${route} "${csp}";`).join('\n'))
 
-					// cloudflare 
-					write(join(pDist, 'static', '_headers'), makeHeadersFile(cspByRoute))
+					write(join(pDistStatic, '_headers'), 
+						makeHeadersFile(cspByRoute, MEDIA_REL_URL))
 				}
 
 				reportSizes(pSizesReport, pDist, docs.routes.map(f => f + config.outputExtension))
@@ -91,12 +99,15 @@ export async function buildStaticPages(config) {
 	})
 }
 
-function makeHeadersFile(cspByRoute) {
+// For Cloudflare
+function makeHeadersFile(cspByRoute, MEDIA_URL) {
 	const cspHeaders = cspByRoute.map(([route, csp]) => {
-		const r = route === '/index' ? '/' : route
+		const r = route === '/index'  // TODO replace in route parser instead
+			? '/' 
+			: route
 		return `${r}\n  Content-Security-Policy: ${csp}`
 	})
-	cspHeaders.push('/static/media/*')
+	cspHeaders.push(`${MEDIA_URL}/*`)
 	cspHeaders.push('  Cache-Control: public,max-age=31536000,immutable')
 	return cspHeaders.join('\n')
 }

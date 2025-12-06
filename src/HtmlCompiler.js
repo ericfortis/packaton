@@ -10,6 +10,7 @@ export class HtmlCompiler {
 	pSource = ''
 	css = ''
 	scriptsJs = ''
+	mediaRelUrl = ''
 	scriptsNonJs = ''
 	externalScripts = []
 	externalCSS = []
@@ -17,12 +18,13 @@ export class HtmlCompiler {
 	#minifyCSS = a => a
 	#minifyHTML = a => a
 
-	constructor(html, pSource = '', { minifyJS, minifyCSS, minifyHTML }) {
+	constructor(html, pSource = '', { minifyJS, minifyCSS, minifyHTML, mediaRelUrl }) {
 		this.html = html
 		this.pSource = pSource
 		this.#minifyJS = minifyJS
 		this.#minifyCSS = minifyCSS
 		this.#minifyHTML = minifyHTML
+		this.mediaRelUrl = mediaRelUrl
 	}
 
 	// Removes comments and format multi-line tags (needed for `removeLineContaining`)
@@ -31,7 +33,7 @@ export class HtmlCompiler {
 	}
 
 	remapMedia(mediaHashes) {
-		this.html = remapMediaInHTML(mediaHashes, this.html)
+		this.html = remapMediaInHTML(mediaHashes, this.html, this.mediaRelUrl)
 	}
 
 	async inlineMinifiedCSS() {

@@ -1,6 +1,7 @@
 export interface Config {
 	mode?: 'development' | 'production';
 	srcPath?: string
+	staticDir?: string
 	ignore?: RegExp
 	
 
