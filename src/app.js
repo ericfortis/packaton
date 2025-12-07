@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs'
 import { basename, join, dirname } from 'node:path'
 
 import { setup } from './config.js'
-import { isFile } from './fs-utils.js'
+import { isFile } from './utils/fs-utils.js'
 import { devStaticPages } from './app-dev.js'
 import { buildStaticPages } from './app-prod.js'
 

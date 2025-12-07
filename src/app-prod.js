@@ -3,11 +3,14 @@ import { cpSync } from 'node:fs'
 import { basename, join, dirname } from 'node:path'
 
 import { docs } from './app.js'
-import { router } from './app-router.js'
-import { reportSizes } from './reportSizes.js'
-import { HtmlCompiler } from './HtmlCompiler.js'
-import { write, removeDir, isFile } from './fs-utils.js'
-import { renameMediaWithHashes } from './media-remaper.js'
+import { router } from './router.js'
+import { HtmlCompiler } from './plugins-prod/HtmlCompiler.js'
+import { sitemapPlugin } from './plugins-prod/sitemapPlugin.js'
+import { reportSizesPlugin } from './plugins-prod/reportSizesPlugin.js'
+import { write, removeDir, } from './utils/fs-utils.js'
+import { cspNginxMapPlugin } from './plugins-prod/cspNginxMapPlugin.js'
+import { renameMediaWithHashes } from './plugins-prod/media-remaper.js'
+import { netiflyAndCloudflareHeadersPlugin } from './plugins-prod/netiflyAndCloudflareHeadersPlugin.js'
 
 
 /**
@@ -19,15 +22,9 @@ export async function buildStaticPages(config) {
 		const MEDIA_REL_URL = join(config.staticDir, 'media')
 
 		const pSource = config.srcPath
-		const pDist = config.outputPath
-		const pDistStatic = join(config.outputPath, config.staticDir)
+		const pDist = config.outputDir
+		const pDistStatic = join(config.outputDir, config.staticDir)
 		const pDistMedia = join(pDist, MEDIA_REL_URL)
-		const pDistSitemap = join(pDist, 'sitemap.txt')
-		const pDistRobots = join(pDist, 'robots.txt')
-		const pSizesReport = 'packed-sizes.json'
-
-		const pDistCspNginxMap = join(pDist, '.csp-map.nginx')
-		const CLOUDFLARE_HEADERS_FILE = join(pDistStatic, '_headers')
 
 		const server = http.createServer(router(config))
 		server.listen(0, '127.0.0.1', async error => {
@@ -69,27 +66,10 @@ export async function buildStaticPages(config) {
 					cspByRoute.push([route, doc.csp()])
 				}
 
-				if (config.sitemapDomain) {
-					write(pDistSitemap, docs.routes
-						.filter(r => r !== '/index')
-						.map(r => `https://${config.sitemapDomain + r}`)
-						.join('\n'))
-
-					if (!isFile(pDistRobots))
-						write(pDistRobots,
-							`Sitemap: https://${config.sitemapDomain}/sitemap.txt`)
-				}
-
-				if (config.cspMapEnabled) {
-					write(pDistCspNginxMap, cspByRoute.map(([route, csp]) =>
-						`${route} "${csp}";`).join('\n'))
-
-					write(CLOUDFLARE_HEADERS_FILE,
-						makeHeadersFile(cspByRoute, MEDIA_REL_URL))
-				}
-
-				reportSizes(pSizesReport, pDist, 
-					docs.routes.map(f => f + config.outputExtension))
+				sitemapPlugin(config, docs.routes)
+				reportSizesPlugin(config, docs.routes)
+				cspNginxMapPlugin(config, cspByRoute)
+				netiflyAndCloudflareHeadersPlugin(config, cspByRoute, MEDIA_REL_URL)
 			}
 			catch (error) {
 				reject(error)
@@ -102,19 +82,6 @@ export async function buildStaticPages(config) {
 			}
 		})
 	})
-}
-
-// TODO @ThinkAbout in Nginx we need to use `/index` but in CF `/`
-function makeHeadersFile(cspByRoute, MEDIA_URL) {
-	const cspHeaders = cspByRoute.map(([route, csp]) => {
-		const r = route === '/index'
-			? '/'
-			: route
-		return `${r}\n  Content-Security-Policy: ${csp}`
-	})
-	cspHeaders.push(`${MEDIA_URL}/*`)
-	cspHeaders.push('  Cache-Control: public,max-age=31536000,immutable')
-	return cspHeaders.join('\n')
 }
 
 

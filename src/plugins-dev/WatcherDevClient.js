@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { watch } from 'node:fs'
 import { EventEmitter } from 'node:events'
-import { docs } from './app.js'
+import { docs } from '../app.js'
 
 
 export const devClientWatcher = new class extends EventEmitter {

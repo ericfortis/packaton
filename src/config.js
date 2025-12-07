@@ -1,11 +1,11 @@
 import { resolve } from 'node:path'
 
-import { isDirectory } from './fs-utils.js'
-import { openInBrowser } from './openInBrowser.js'
+import { isDirectory } from './utils/fs-utils.js'
+import { openInBrowser } from './plugins-dev/openInBrowser.js'
 
-import { minifyJS } from './minifyJS.js'
-import { minifyCSS } from './minifyCSS.js'
-import { minifyHTML } from './minifyHTML.js'
+import { minifyJS } from './plugins-prod/minifyJS.js'
+import { minifyCSS } from './plugins-prod/minifyCSS.js'
+import { minifyHTML } from './plugins-prod/minifyHTML.js'
 
 
 /** @type {{
@@ -28,7 +28,7 @@ const schema = {
 
 	// Production
 	outputExtension: ['.html', optional(String)],
-	outputPath: ['dist', optional(String)], // TODO resolve
+	outputDir: ['dist', optional(String)], // TODO resolve
 	minifyJS: [minifyJS, optional(Function)],
 	minifyCSS: [minifyCSS, optional(Function)],
 	minifyHTML: [minifyHTML, optional(Function)],

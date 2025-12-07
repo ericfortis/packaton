@@ -2,16 +2,17 @@ import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
 
 import { docs } from './app.js'
-import { mimeFor } from './mimes.js'
-import { devClientWatcher } from './WatcherDevClient.js'
-import { sendError, sendJSON, servePartialContent, serveStaticAsset } from './http-response.js'
+import { mimeFor } from './utils/mimes.js'
+import { devClientWatcher } from './plugins-dev/WatcherDevClient.js'
+import { sendError, sendJSON, servePartialContent, serveStaticAsset } from './utils/http-response.js'
 
+
+const WATCHER_DEV = '/plugins-dev/watcherDev.js'
 
 const API = {
 	watchDev: '/packaton/watch-dev'
 }
 
-const WATCHER_DEV = '/watcherDev.js'
 
 
 /** @param {Config} config */

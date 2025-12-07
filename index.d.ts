@@ -12,7 +12,7 @@ export interface Config {
   hotReload?: boolean // For UI dev purposes only
 	
 	// Production
-	outputPath?: string
+	outputDir?: string
 	outputExtension?: string
 	minifyJS?: (js: string) => Promise<string>
 	minifyCSS?: (css: string) => Promise<string>

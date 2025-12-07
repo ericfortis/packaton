@@ -1,6 +1,6 @@
 import { join, parse } from 'node:path'
 import { renameSync } from 'node:fs'
-import { sha1, listFiles } from './fs-utils.js'
+import { sha1, listFiles } from '../utils/fs-utils.js'
 
 
 /**

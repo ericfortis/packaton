@@ -12,7 +12,7 @@ computes their corresponding CSP nonce and injects it as well.
 
 
 ## Images and Videos (immutable naming)
-For long-term caching, [media-remaper.js](src/media-remaper.js) appends a SHA-1 hash
+For long-term caching, [media-remaper.js](src/plugins-prod/media-remaper.js) appends a SHA-1 hash
 to the filenames and takes care of rewriting their `src` in HTML (**only in HTML**).
 
 If you want to use media files in CSS, create a similar function to

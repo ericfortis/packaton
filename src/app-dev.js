@@ -1,7 +1,7 @@
 import http from 'node:http'
 
-import { router } from './app-router.js'
-import { watchDev } from './WatcherDevClient.js'
+import { router } from './router.js'
+import { watchDev } from './plugins-dev/WatcherDevClient.js'
 
 
 /**

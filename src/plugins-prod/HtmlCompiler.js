@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 
-import { read } from './fs-utils.js'
+import { read } from '../utils/fs-utils.js'
 import { remapMediaInHTML } from './media-remaper.js'
 
 

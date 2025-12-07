@@ -1,8 +1,11 @@
 import { join } from 'node:path'
-import { read, sizeOf, sha1, saveAsJSON, isFile } from './fs-utils.js'
+import { read, sizeOf, sha1, saveAsJSON, isFile } from '../utils/fs-utils.js'
 
 
-export function reportSizes(reportFilename, baseDir, files) {
+export function reportSizesPlugin(config, routes) {
+	const files = routes.map(f => f + config.outputExtension)
+	const baseDir = config.outputDir
+	const reportFilename = 'packed-sizes.json'
 	const oldReport = isFile(reportFilename)
 		? JSON.parse(read(reportFilename))
 		: {}
