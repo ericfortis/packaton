@@ -1,5 +1,5 @@
-import http from 'node:http'
 import { cpSync } from 'node:fs'
+import { createServer } from 'node:http'
 import { basename, join, dirname } from 'node:path'
 
 import { docs } from './app.js'
@@ -26,15 +26,11 @@ export async function buildStaticPages(config) {
 		const pDistStatic = join(config.outputDir, config.staticDir)
 		const pDistMedia = join(pDist, MEDIA_REL_URL)
 
-		const server = http.createServer(router(config))
-		server.listen(0, '127.0.0.1', async error => {
+		const server = createServer(router(config))
+		server.on('error', reject)
+		server.listen(0, '127.0.0.1', async () => {
 			docs.init(config.srcPath, config.ignore)
 			try {
-				if (error) {
-					reject(error)
-					return
-				}
-
 				removeDir(pDist)
 				cpSync(join(pSource, config.staticDir), pDistStatic, {
 					recursive: true,
