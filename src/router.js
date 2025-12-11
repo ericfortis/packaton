@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises'
 import { docs } from './app.js'
 import { mimeFor } from './utils/mimes.js'
 import { devClientWatcher } from './plugins-dev/WatcherDevClient.js'
-import { sendError, sendJSON, servePartialContent, serveStaticAsset } from './utils/http-response.js'
+import { sendError, sendJSON, servePartialContent, serveAsset } from './utils/http-response.js'
 
 
 const WATCHER_DEV = '/plugins-dev/watcherDev.js'
@@ -26,7 +26,7 @@ export function router({ srcPath, ignore, mode }) {
 				longPollDevHotReload(req, response)
 				
 			else if (url === WATCHER_DEV)
-				serveStaticAsset(response, join(import.meta.dirname, url))
+				serveAsset(response, join(import.meta.dirname, url))
 				
 			else if (docs.hasRoute(url))
 				await serveDocument(response, docs.fileFor(url), isDev)
@@ -38,7 +38,7 @@ export function router({ srcPath, ignore, mode }) {
 				await servePartialContent(response, req.headers, join(srcPath, url))
 				
 			else
-				serveStaticAsset(response, join(srcPath, url))
+				serveAsset(response, join(srcPath, url))
 		}
 		catch (error) {
 			sendError(response, error)

@@ -19,11 +19,11 @@ import { netiflyAndCloudflareHeadersPlugin } from './plugins-prod/netiflyAndClou
  */
 export async function buildStaticPages(config) {
 	return new Promise((resolve, reject) => {
-		const MEDIA_REL_URL = join(config.staticDir, 'media')
+		const MEDIA_REL_URL = join(config.assetsDir, 'media')
 
 		const pSource = config.srcPath
 		const pDist = config.outputDir
-		const pDistStatic = join(config.outputDir, config.staticDir)
+		const pDistAssets = join(config.outputDir, config.assetsDir)
 		const pDistMedia = join(pDist, MEDIA_REL_URL)
 
 		const server = createServer(router(config))
@@ -32,7 +32,7 @@ export async function buildStaticPages(config) {
 			docs.init(config.srcPath, config.ignore)
 			try {
 				removeDir(pDist)
-				cpSync(join(pSource, config.staticDir), pDistStatic, {
+				cpSync(join(pSource, config.assetsDir), pDistAssets, {
 					recursive: true,
 					dereference: true,
 					filter(src) {

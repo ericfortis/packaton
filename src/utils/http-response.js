@@ -15,7 +15,7 @@ export function sendJSON(response, payload) {
 	response.end(JSON.stringify(payload))
 }
 
-export function serveStaticAsset(response, file) {
+export function serveAsset(response, file) {
 	response.setHeader('Content-Type', mimeFor(file))
 	const reader = fs.createReadStream(file)
 	reader.on('open', function () { this.pipe(response) })

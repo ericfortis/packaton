@@ -17,7 +17,7 @@ import { minifyHTML } from './plugins-prod/minifyHTML.js'
 const schema = {
 	mode: ['development', val => ['development', 'production'].includes(val)],
 	srcPath: [resolve('src'), isDirectory],
-	staticDir: ['static', optional(String)],
+	assetsDir: ['assets', optional(String)],
 	ignore: [/^_/, optional(RegExp)],
 
 	// Development

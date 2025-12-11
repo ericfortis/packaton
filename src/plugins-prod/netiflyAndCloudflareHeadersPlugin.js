@@ -2,8 +2,13 @@ import { join } from 'node:path'
 import { write } from '../utils/fs-utils.js'
 
 
-export function netiflyAndCloudflareHeadersPlugin(config, cspByRoute, MEDIA_URL) {
-	const out = join(join(config.outputDir, config.staticDir), '_headers')
+/**
+ * @param {Config} config
+ * @param {string} cspByRoute
+ * @param {string} relMediaURL
+ */
+export function netiflyAndCloudflareHeadersPlugin(config, cspByRoute, relMediaURL) {
+	const out = join(join(config.outputDir, config.assetsDir), '_headers')
 
 	const cspHeaders = cspByRoute.map(([route, csp]) => {
 		const r = route === '/index'
@@ -15,7 +20,7 @@ export function netiflyAndCloudflareHeadersPlugin(config, cspByRoute, MEDIA_URL)
 			`  Cache-Control: public,max-age=60`
 		].join('\n')
 	})
-	cspHeaders.push(`${MEDIA_URL}/*`)
+	cspHeaders.push(`/${relMediaURL}/*`)
 	cspHeaders.push('  Cache-Control: public,max-age=31536000,immutable')
 
 	write(out, cspHeaders.join('\n'))
