@@ -58,7 +58,7 @@ export async function buildStaticPages(config) {
 					// TODO remap media in css and js
 					await doc.inlineMinifiedCSS()
 					await doc.inlineMinifiedJS()
-					write(pDist + route + config.outputExtension, doc.html)
+					write(join(pDist, route + config.outputExtension), doc.html)
 					cspByRoute.push([route, doc.csp()])
 				}
 

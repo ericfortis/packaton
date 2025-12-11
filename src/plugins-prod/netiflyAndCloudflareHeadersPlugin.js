@@ -9,7 +9,11 @@ export function netiflyAndCloudflareHeadersPlugin(config, cspByRoute, MEDIA_URL)
 		const r = route === '/index'
 			? '/'
 			: route
-		return `${r}\n  Content-Security-Policy: ${csp}`
+		return [
+			r,
+			`  Content-Security-Policy: ${csp}`,
+			`  Cache-Control: public,max-age=60`
+		].join('\n')
 	})
 	cspHeaders.push(`${MEDIA_URL}/*`)
 	cspHeaders.push('  Cache-Control: public,max-age=31536000,immutable')
