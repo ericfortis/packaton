@@ -1,5 +1,5 @@
-import { join, parse } from 'node:path'
 import { renameSync } from 'node:fs'
+import { join, parse, relative } from 'node:path'
 import { sha1, listFiles } from '../utils/fs-utils.js'
 
 
@@ -7,49 +7,33 @@ import { sha1, listFiles } from '../utils/fs-utils.js'
  * Subdirectories are ignored
  *   foo.avif      -> foo-<sha1>.avif
  */
-export async function renameMediaWithHashes(dir) {
-	const mediaHashes = new Map()
+export async function renameMediaWithHashes(distDir, mediaDir) {
+	const mDir = join(distDir, mediaDir)
+	const map = new Map()
 
-	for (const file of await listFiles(dir)) {
-		const { name, base, ext } = parse(file)
-		const newFileName = name + '-' + sha1(file) + ext
-		const newFile = join(dir, newFileName)
-		mediaHashes.set(base, newFileName)
+	for (const file of await listFiles(mDir)) {
+		const { dir, name, ext } = parse(file)
+		const newFile = join(dir, name + '-' + sha1(file) + ext)
 		renameSync(file, newFile)
+		map.set(relative(distDir, file), relative(distDir, newFile))
 	}
 
-	return mediaHashes
+	return map
 }
 
-// Having one dir is kinda nice for nginx headers, but that's not an excuse nor solves nested dirs with same filename
-
-// TODO for (b of base) find and replace base with new hash
-//   so it works in dirs outside media/
-//  mm currently a limitation is that the dictionary doesn't have the path, just the name, so
-// filenames need to be unique, regardless of being in a subfolder
-/**
- * Edit the media source links in the HTML, so they have the new SHA-1 hashed
- * filenames. Assumes that all the files are in "media/" (not ../media, ./media)
- *
- * If you want to handle CSS files, edit the regex so
- * instead of checking `="` (e.g. src="img.png") also checks for `url(`
- **/
 export function remapMediaInHTML(mediaHashes, html, mediaRelUrl) {
-	const mURL = escapeForRegex(mediaRelUrl)
-	const reFindMedia = new RegExp(`(="${mURL}/.*?)"`, 'g')
-	const reFindMediaKey = new RegExp(`="${mURL}/`)
-
-	for (const [, url] of html.matchAll(reFindMedia)) {
-		const hashedName = mediaHashes.get(url.replace(reFindMediaKey, ''))
+	const mURL = escapeRegex(mediaRelUrl)
+	const reFindMedia = new RegExp(`="(/?)(${mURL}/[^"]*)"`, 'g')
+	return html.replace(reFindMedia, (_, optLeadingSlash, url) => {
+		const hashedName = mediaHashes.get(url)
 		if (!hashedName)
-			throw `ERROR: Missing ${url}\n`
-		html = html.replace(url, `="${mediaRelUrl}/${hashedName}`)
-	}
-	return html
+			throw new Error(`ERROR: Missing ${url}`)
+		return `="${optLeadingSlash}${hashedName}"`
+	})
 }
 
 
-function escapeForRegex(literal) {
+function escapeRegex(literal) {
 	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 

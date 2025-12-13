@@ -23,8 +23,7 @@ export async function buildStaticPages(config) {
 
 		const pSource = config.srcPath
 		const pDist = config.outputDir
-		const pDistAssets = join(config.outputDir, config.assetsDir)
-		const pDistMedia = join(pDist, MEDIA_REL_URL)
+		const pDistAssets = join(pDist, config.assetsDir)
 
 		const server = createServer(router(config))
 		server.on('error', reject)
@@ -43,8 +42,8 @@ export async function buildStaticPages(config) {
 				})
 
 				const pages = await crawlRoutes(server.address(), docs.routes)
-
-				const mediaHashes = await renameMediaWithHashes(pDistMedia) // only on top dir
+				const mediaHashes = await renameMediaWithHashes(pDist, MEDIA_REL_URL)
+				
 				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
 					const doc = new HtmlCompiler(rawHtml, join(pSource, dirname(route)), {

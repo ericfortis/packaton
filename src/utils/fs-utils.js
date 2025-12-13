@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join, dirname } from 'node:path'
-import { rmSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { rmSync, lstatSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs'
 
 
 export const read = f => readFileSync(f, 'utf8')
@@ -29,7 +29,7 @@ export const sha1 = f => createHash('sha1').update(readFileSync(f)).digest('base
 export async function listFiles(dir) {
 	return (await readdir(dir, {
 		withFileTypes: true,
-		recursive: false
+		recursive: true
 	}))
 		.filter(e => e.isFile())
 		.map(e => join(e.parentPath, e.name))
