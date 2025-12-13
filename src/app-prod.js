@@ -42,19 +42,21 @@ export async function buildStaticPages(config) {
 					}
 				})
 
-				const mediaHashes = await renameMediaWithHashes(pDistMedia) // only on top dir
 				const pages = await crawlRoutes(server.address(), docs.routes)
 
+				const mediaHashes = await renameMediaWithHashes(pDistMedia) // only on top dir
 				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
 					const doc = new HtmlCompiler(rawHtml, join(pSource, dirname(route)), {
 						minifyJS: config.minifyJS,
 						minifyCSS: config.minifyCSS,
 						minifyHTML: config.minifyHTML,
-						mediaRelUrl: MEDIA_REL_URL
+						mediaRelUrl: MEDIA_REL_URL,
+						mediaHashes
+						
 					})
 					await doc.minifyHTML()
-					doc.remapMedia(mediaHashes)
+					doc.remapMedia()
 					// TODO remap media in css and js
 					await doc.inlineMinifiedCSS()
 					await doc.inlineMinifiedJS()
