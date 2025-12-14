@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 
 import { docs } from './app.js'
 import { mimeFor } from './utils/mimes.js'
+import { isDirectory } from './utils/fs-utils.js'
 import { devClientWatcher } from './plugins-dev/WatcherDevClient.js'
 import { sendError, sendJSON, servePartialContent, serveAsset } from './utils/http-response.js'
 
@@ -14,7 +15,6 @@ const API = {
 }
 
 
-
 /** @param {Config} config */
 export function router({ srcPath, ignore, mode }) {
 	docs.init(srcPath, ignore)
@@ -24,21 +24,21 @@ export function router({ srcPath, ignore, mode }) {
 		try {
 			if (url === API.watchDev)
 				longPollDevHotReload(req, response)
-				
+
 			else if (url === WATCHER_DEV)
 				serveAsset(response, join(import.meta.dirname, url))
-				
+
 			else if (docs.hasRoute(url))
 				await serveDocument(response, docs.fileFor(url), isDev)
-				
-			else if (docs.hasRoute(join(url, 'index'))) 
+
+			else if (docs.hasRoute(join(url, 'index')))
 				await serveDocument(response, docs.fileFor(join(url, 'index')), isDev)
-				
+
 			else if (req.headers.range)
-				await servePartialContent(response, req.headers, join(srcPath, url))
-				
+				await servePartialContent(response, req.headers, resolveUrl(req, srcPath, url))
+
 			else
-				serveAsset(response, join(srcPath, url))
+				serveAsset(response, resolveUrl(req, srcPath, url))
 		}
 		catch (error) {
 			sendError(response, error)
@@ -54,6 +54,21 @@ async function serveDocument(response, file, isDev) {
 		html += `<script type="module" src="${WATCHER_DEV}"></script>`
 	response.setHeader('Content-Type', mimeFor('html'))
 	response.end(html)
+}
+
+
+function resolveUrl(req, srcPath, url) {
+	return join(srcPath, dirFor(req, srcPath), url)
+}
+
+function dirFor(req, srcPath) {
+	const ref = req.headers.referer || '/'
+	if (ref.endsWith('/'))
+		return ''
+	const p = new URL(ref).pathname
+	return isDirectory(join(srcPath, p))
+		? p
+		: ''
 }
 
 
