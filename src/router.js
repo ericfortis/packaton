@@ -58,14 +58,13 @@ async function serveDocument(response, file, isDev) {
 
 
 function resolveUrl(req, srcPath, url) {
-	return join(srcPath, dirFor(req, srcPath), url)
+	return join(srcPath, dirFor(req.headers.referer, srcPath), url)
 }
 
-function dirFor(req, srcPath) {
-	const ref = req.headers.referer || '/'
-	if (ref.endsWith('/'))
+function dirFor(referer = '/', srcPath) {
+	if (referer.endsWith('/'))
 		return ''
-	const p = new URL(ref).pathname
+	const p = new URL(referer).pathname
 	return isDirectory(join(srcPath, p))
 		? p
 		: ''
