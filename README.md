@@ -2,6 +2,15 @@
 
 Static Pages Bundler.
 
+## Limitations
+- `src` and `href` URLs must be absolute
+- can't write inline scripts or css (all must be in an external file, packaton inlines them)
+- must have an index
+- Ignored Documents start with `_`, so you can't have routes that begin with _
+- Non-Documents and Files outside config.assetsDir are not automatically copied over,
+  you need to specify them.
+
+
 ## HTML Template
 Optionally, you can create an HTML template.
 For example, to handle the common header, navigation, and footer.
@@ -39,12 +48,3 @@ Packaton({
 ```
 
 To avoid minifying, you can pass `a=>a` 
-
-
-## Caveats
-- can't write inline scripts or css (all must be in an external file, packaton inlines them)
-- must have an index
-- Ignored Documents start with `_`, so you can't have routes that begin with _
-- Non-Documents and Files outside config.assetsDir are not automatically copied over,
-  you need to specify them. 
-- assets/media only files at the top level get hashed-named. But files within subdirs are not (by design).

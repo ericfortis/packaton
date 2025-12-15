@@ -1,6 +1,6 @@
 import { cpSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { basename, join, dirname } from 'node:path'
+import { basename, join } from 'node:path'
 
 import { docs } from './app.js'
 import { router } from './router.js'
@@ -46,7 +46,7 @@ export async function buildStaticPages(config) {
 				
 				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
-					const doc = new HtmlCompiler(rawHtml, join(pSource, dirname(route)), {
+					const doc = new HtmlCompiler(rawHtml, pSource, {
 						minifyJS: config.minifyJS,
 						minifyCSS: config.minifyCSS,
 						minifyHTML: config.minifyHTML,

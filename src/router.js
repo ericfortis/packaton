@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises'
 
 import { docs } from './app.js'
 import { mimeFor } from './utils/mimes.js'
-import { isDirectory } from './utils/fs-utils.js'
 import { devClientWatcher } from './plugins-dev/WatcherDevClient.js'
 import { sendError, sendJSON, servePartialContent, serveAsset } from './utils/http-response.js'
 
@@ -35,10 +34,10 @@ export function router({ srcPath, ignore, mode }) {
 				await serveDocument(response, docs.fileFor(join(url, 'index')), isDev)
 
 			else if (req.headers.range)
-				await servePartialContent(response, req.headers, resolveUrl(req, srcPath, url))
+				await servePartialContent(response, req.headers, join(srcPath, url))
 
 			else
-				serveAsset(response, resolveUrl(req, srcPath, url))
+				serveAsset(response, join(srcPath, url))
 		}
 		catch (error) {
 			sendError(response, error)
@@ -54,20 +53,6 @@ async function serveDocument(response, file, isDev) {
 		html += `<script type="module" src="${WATCHER_DEV}"></script>`
 	response.setHeader('Content-Type', mimeFor('html'))
 	response.end(html)
-}
-
-
-function resolveUrl(req, srcPath, url) {
-	return join(srcPath, dirFor(req.headers.referer, srcPath), url)
-}
-
-function dirFor(referer = '/', srcPath) {
-	if (referer.endsWith('/'))
-		return ''
-	const p = new URL(referer).pathname
-	return isDirectory(join(srcPath, p))
-		? p
-		: ''
 }
 
 
