@@ -1,11 +1,14 @@
 import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
+import { randomUUID } from 'node:crypto'
 
 import { docs } from './app.js'
 import { mimeFor } from './utils/mimes.js'
 import { devClientWatcher } from './plugins-dev/WatcherDevClient.js'
 import { sendError, sendJSON, servePartialContent, serveAsset } from './utils/http-response.js'
 
+
+const devtoolsWorkspaceId = randomUUID()
 
 const WATCHER_DEV = '/plugins-dev/watcherDev.js'
 
@@ -21,7 +24,15 @@ export function router({ srcPath, ignore, mode }) {
 	return async function (req, response) {
 		let url = new URL(req.url, 'http://_').pathname
 		try {
-			if (url === API.watchDev)
+			if (url === '/.well-known/appspecific/com.chrome.devtools.json')
+				sendJSON(response, {
+					workspace: {
+						root: srcPath,
+						uuid: devtoolsWorkspaceId
+					}
+				})
+
+			else if (url === API.watchDev)
 				longPollDevHotReload(req, response)
 
 			else if (url === WATCHER_DEV)
