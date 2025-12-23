@@ -1,10 +1,10 @@
 # Packaton WIP
 
-Static Pages Bundler.
+Static Site Generator (SSG). Inlines CSS and JS and 
+creates a header file with their corresponding CSP hashes.
 
 ## Limitations
 - `src` and `href` URLs must be absolute
-- can't write inline scripts or css (all must be in an external file, packaton inlines them)
 - must have an index
 - Ignored Documents start with `_`, so you can't have routes that begin with _
 - Non-Documents and Files outside config.assetsDir are not automatically copied over,

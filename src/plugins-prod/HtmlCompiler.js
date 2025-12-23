@@ -102,11 +102,13 @@ export class HtmlCompiler {
 		const nonJsScriptHashes = this.scriptsNonJs.map(([, body]) => `'${this.hash256(body)}'`).join(' ')
 		
 		const externalScriptHashes = this.externalScripts.map(url => `${new URL(url).origin}`).join(' ')
+		
+		const inlineScriptsHashes = this.extractInlineScripts().map(body => `'${this.hash256(body)}'`).join(' ')
 		return [
 			`default-src 'self'`,
 			`img-src 'self' data:`, // data: is for Safari's video player icons and for CSS bg images
 			`style-src ${cssHash}`,
-			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModulesHashes} ${externalScriptHashes} 'self'`,
+			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModulesHashes} ${externalScriptHashes} ${inlineScriptsHashes} 'self'`,
 			`frame-ancestors 'none'`
 		].join('; ')
 	}
@@ -145,5 +147,16 @@ export class HtmlCompiler {
 					: 'application/javascript'
 			]
 		})
+	}
+	
+	extractInlineScripts() {
+		const reExtractInlineScripts = /<script\b([^>]*?)>([\s\S]*?)<\/script>/g
+		return Array.from(this.html.matchAll(reExtractInlineScripts), m => {
+			const attrs = m[1]
+			const body = m[2]
+			return attrs.includes('src=') 
+				? null 
+				: body
+		}).filter(Boolean)
 	}
 }
