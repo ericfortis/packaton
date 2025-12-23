@@ -69,22 +69,24 @@ export class HtmlCompiler {
 			.map(([, body]) => body)
 			.join('\n'))
 
-		this.scriptsModuleJs = await this.#minifyJS(scripts
+		this.scriptsModuleJs = await Promise.all(scripts
 			.filter(([type]) => type === 'module')
-			.map(([, body]) => body)
-			.join('\n'))
+			.map(([, body]) => this.#minifyJS(body)))
+		
+		this.scriptsNonJs = scripts.filter(([type]) => type !== 'application/javascript' && type !== 'module')
 
 		this.scriptsNonJs = scripts
 			.filter(([type]) => type !== 'application/javascript' && type !== 'module')
 
 		if (this.scriptsJs)
 			this.html = this.html.replace('</body>', `\n<script>${this.scriptsJs}</script></body>`)
-		
-		if (this.scriptsModuleJs)
-			this.html = this.html.replace('</body>', `\n<script type="module">${this.scriptsModuleJs}</script></body>`)
+
+		for (const body of this.scriptsModuleJs)
+			this.html = this.html.replace('</body>', `\n<script type="module">${body}</script></body>`)
 
 		for (const [type, body] of this.scriptsNonJs)
 			this.html = this.html.replace('</body>', `\n<script type="${type}">${body}</script></body>`)
+
 	}
 
 	csp() {
@@ -94,17 +96,17 @@ export class HtmlCompiler {
 		const jsScriptHash = this.scriptsJs
 			? `'${this.hash256(this.scriptsJs)}'`
 			: '' // TODO maybe self?
-		const jsModuleHash = this.scriptsModuleJs
-			? `'${this.hash256(this.scriptsModuleJs)}'`
-			: '' // TODO maybe self?
-		const nonJsScriptHashes = this.scriptsNonJs
-			.map(([, body]) => `'${this.hash256(body)}'`).join(' ')
+		
+		const jsModulesHashes = this.scriptsModuleJs.map(body => `'${this.hash256(body)}'`).join(' ')
+		
+		const nonJsScriptHashes = this.scriptsNonJs.map(([, body]) => `'${this.hash256(body)}'`).join(' ')
+		
 		const externalScriptHashes = this.externalScripts.map(url => `${new URL(url).origin}`).join(' ')
 		return [
 			`default-src 'self'`,
 			`img-src 'self' data:`, // data: is for Safari's video player icons and for CSS bg images
 			`style-src ${cssHash}`,
-			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModuleHash} ${externalScriptHashes} 'self'`,
+			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModulesHashes} ${externalScriptHashes} 'self'`,
 			`frame-ancestors 'none'`
 		].join('; ')
 	}
