@@ -49,7 +49,7 @@ export class HtmlCompiler {
 		}
 		if (this.css) {
 			this.css = await this.#minifyCSS(this.css)
-			this.html = this.html.replace('</head>', `<style>${this.css}</style></head>`)
+			this.#appendToHead(`<style>${this.css}</style>`)
 		}
 	}
 
@@ -73,42 +73,34 @@ export class HtmlCompiler {
 			.filter(([type]) => type === 'module')
 			.map(([, body]) => this.#minifyJS(body)))
 		
-		this.scriptsNonJs = scripts.filter(([type]) => type !== 'application/javascript' && type !== 'module')
-
 		this.scriptsNonJs = scripts
 			.filter(([type]) => type !== 'application/javascript' && type !== 'module')
 
 		if (this.scriptsJs)
-			this.html = this.html.replace('</body>', `\n<script>${this.scriptsJs}</script></body>`)
+			this.#appendToBody(`<script>${this.scriptsJs}</script>`)
 
 		for (const body of this.scriptsModuleJs)
-			this.html = this.html.replace('</body>', `\n<script type="module">${body}</script></body>`)
+			this.#appendToBody(`<script type="module">${body}</script>`)
 
 		for (const [type, body] of this.scriptsNonJs)
-			this.html = this.html.replace('</body>', `\n<script type="${type}">${body}</script></body>`)
-
+			this.#appendToBody(`<script type="${type}">${body}</script>`)
 	}
 
+
 	csp() {
-		const cssHash = this.css
-			? `'${this.hash256(this.css)}'`
-			: '' // TODO maybe self?
-		const jsScriptHash = this.scriptsJs
-			? `'${this.hash256(this.scriptsJs)}'`
-			: '' // TODO maybe self?
+		const cssHash = this.css ? `'${this.hash256(this.css)}'` : '' // TODO maybe self?
 		
+		const jsScriptHash = this.scriptsJs ? `'${this.hash256(this.scriptsJs)}'` : '' // TODO maybe self?
 		const jsModulesHashes = this.scriptsModuleJs.map(body => `'${this.hash256(body)}'`).join(' ')
-		
 		const nonJsScriptHashes = this.scriptsNonJs.map(([, body]) => `'${this.hash256(body)}'`).join(' ')
-		
-		const externalScriptHashes = this.externalScripts.map(url => `${new URL(url).origin}`).join(' ')
-		
 		const inlineScriptsHashes = this.extractInlineScripts().map(body => `'${this.hash256(body)}'`).join(' ')
+		const externalScriptDomains = this.externalScripts.map(url => `${new URL(url).origin}`).join(' ')
+		
 		return [
 			`default-src 'self'`,
 			`img-src 'self' data:`, // data: is for Safari's video player icons and for CSS bg images
 			`style-src ${cssHash}`,
-			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModulesHashes} ${externalScriptHashes} ${inlineScriptsHashes} 'self'`,
+			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModulesHashes} ${externalScriptDomains} ${inlineScriptsHashes} 'self'`,
 			`frame-ancestors 'none'`
 		].join('; ')
 	}
@@ -119,10 +111,17 @@ export class HtmlCompiler {
 			: ''
 	}
 
+	#appendToHead(tag) {
+		this.html = this.html.replace('</head>', `\n${tag}</head>`)
+	}
+	#appendToBody(tag) {
+		this.html = this.html.replace('</body>', `\n${tag}</body>`)
+	}
 	removeLineContaining(str) {
 		this.html = this.html.replace(new RegExp('^.*' + str + '.*\n', 'm'), '')
 	}
 
+	
 	extractStyleSheetHrefs() {
 		const reExtractStyleSheets = /(?<=<link\s.*href=")[^"]+\.css/g
 		return Array.from(this.html.matchAll(reExtractStyleSheets), m => m[0])
