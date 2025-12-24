@@ -49,7 +49,7 @@ export class HtmlCompiler {
 		}
 		if (this.css) {
 			this.css = await this.#minifyCSS(this.css)
-			this.html = this.html.replace('<head>', `<head><style>${this.css}</style>`)
+			this.html = this.html.replace('</head>', `</head><style>${this.css}</style>`)
 		}
 	}
 

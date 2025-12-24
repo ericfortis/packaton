@@ -3,6 +3,9 @@
 Static Site Generator (SSG). Inlines CSS and JS and 
 creates a header file with their corresponding CSP hashes.
 
+## Usage Example
+https://github.com/ericfortis/mockaton/tree/main/www
+
 ## Limitations
 - `src` and `href` URLs must be absolute
 - must have an index
