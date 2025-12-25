@@ -71,7 +71,7 @@ export class HtmlCompiler {
 
 		this.scriptsModuleJs = await Promise.all(scripts
 			.filter(([type]) => type === 'module')
-			.map(([, body]) => this.#minifyJS(body)))
+			.map(([, body]) => this.#minifyJS(body, Boolean('isModule'))))
 		
 		this.scriptsNonJs = scripts
 			.filter(([type]) => type !== 'application/javascript' && type !== 'module')

@@ -1,6 +1,6 @@
 import { minify } from 'terser'
 
 
-export async function minifyJS(code, options) {
-	return (await minify(code, options)).code
+export async function minifyJS(code, isModule) {
+	return (await minify(code, { module: isModule })).code
 }

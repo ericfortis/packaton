@@ -14,7 +14,7 @@ export interface Config {
 	// Production
 	outputDir?: string
 	outputExtension?: string
-	minifyJS?: (js: string) => Promise<string>
+	minifyJS?: (js: string, isModule: boolean) => Promise<string>
 	minifyCSS?: (css: string) => Promise<string>
 	minifyHTML?: (html: string) => Promise<string>
 	sitemapDomain?: string
