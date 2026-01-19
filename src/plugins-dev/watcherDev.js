@@ -9,7 +9,7 @@ async function longPollDevChanges() {
 
 		const file = await response.json() || ''
 		if (file.endsWith('.css')) {
-			hotReloadCSS(file)
+			await hotReloadCSS(file)
 			longPollDevChanges()
 		}
 		else if (file)
@@ -23,11 +23,15 @@ async function longPollDevChanges() {
 	}
 }
 
-function hotReloadCSS(file) {
+async function hotReloadCSS(file) {
 	let link = document.querySelector(`link[href^="/${file}"]`)
 	if (link) {
 		const [url] = link.getAttribute('href').split('?')
 		link.href = url + '?' + Date.now()
+	}
+	else {
+		const mod = await import(`/${file}?${Date.now()}`, { with: { type: 'css' } })
+		document.adoptedStyleSheets = [mod.default]
 	}
 }
 
