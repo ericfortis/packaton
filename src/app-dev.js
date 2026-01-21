@@ -11,7 +11,7 @@ import { watchDev } from './plugins-dev/WatcherDevClient.js'
 export function devStaticPages(config) {
 	return new Promise((resolve, reject) => {
 		if (config.hotReload)
-			watchDev(config.srcPath)
+			watchDev(config.srcPath, config.watchIgnore)
 
 		const server = http.createServer(router(config))
 		server.on('error', reject)

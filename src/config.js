@@ -25,6 +25,7 @@ const schema = {
 	port: [0, port => Number.isInteger(port) && port >= 0 && port < 2 ** 16], // 0 means auto-assigned
 	onReady: [await openInBrowser, is(Function)],
 	hotReload: [true, is(Boolean)],
+	watchIgnore: [[], Array.isArray], // TODO Array<string|RegExp> 
 
 	// Production
 	outputExtension: ['.html', optional(String)],

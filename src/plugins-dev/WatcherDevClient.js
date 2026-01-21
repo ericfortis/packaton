@@ -10,8 +10,10 @@ export const devClientWatcher = new class extends EventEmitter {
 	unsubscribe(listener) { this.removeListener('RELOAD', listener) }
 }
 
-export function watchDev(rootPath) {
+export function watchDev(rootPath, watchIgnore) {
 	watch(rootPath, { recursive: true }, (_, file) => {
+		if (watchIgnore.some(f => f === file)) // TODO handle regexes
+			return
 		docs.onWatch(join(rootPath, file))
 		devClientWatcher.emit(file)
 	})

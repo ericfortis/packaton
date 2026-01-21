@@ -10,6 +10,7 @@ export interface Config {
   port?: number
   onReady?: (address: string) => void
   hotReload?: boolean // For UI dev purposes only
+	watchIgnore?: Array<string|RegExp>
 	
 	// Production
 	outputDir?: string
