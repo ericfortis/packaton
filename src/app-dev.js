@@ -1,4 +1,5 @@
-import http from 'node:http'
+import { register } from 'node:module'
+import { createServer } from 'node:http'
 
 import { router } from './router.js'
 import { watchDev } from './plugins-dev/WatcherDevClient.js'
@@ -10,10 +11,12 @@ import { watchDev } from './plugins-dev/WatcherDevClient.js'
  */
 export function devStaticPages(config) {
 	return new Promise((resolve, reject) => {
+		register('./plugins-dev/cache-bust-resolver.js', import.meta.url)
+
 		if (config.hotReload)
 			watchDev(config.srcPath, config.watchIgnore)
 
-		const server = http.createServer(router(config))
+		const server = createServer(router(config))
 		server.on('error', reject)
 		server.listen(config.port, config.host, () => {
 			const addr = `http://${server.address().address}:${server.address().port}`
