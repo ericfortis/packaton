@@ -33,7 +33,7 @@ export function router({ srcPath, ignore, mode }) {
 				})
 
 			else if (url === API.watchDev)
-				longPollDevHotReload(req, response)
+				sseDevHotReload(req, response)
 
 			else if (url === WATCHER_DEV)
 				serveAsset(response, join(import.meta.dirname, url))
@@ -67,22 +67,30 @@ async function serveDocument(response, file, isDev) {
 }
 
 
-const LONG_POLL_SERVER_TIMEOUT = 8000
+function sseDevHotReload(req, response) {
+	response.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive',
+	})
+	response.flushHeaders()
 
-function longPollDevHotReload(req, response) {
-	function onDevChange(file) {
-		devClientWatcher.unsubscribe(onDevChange)
-		sendJSON(response, file)
+	function onDevChange(file = '') {
+		response.write(`data: ${file}\n\n`)
 	}
-	response.setTimeout(LONG_POLL_SERVER_TIMEOUT, () => {
-		devClientWatcher.unsubscribe(onDevChange)
-		sendJSON(response, '')
-	})
-	req.on('error', () => {
-		devClientWatcher.unsubscribe(onDevChange)
-		response.destroy()
-	})
+
 	devClientWatcher.subscribe(onDevChange)
+
+	const keepAlive = setInterval(() => {
+		response.write(': ping\n\n')
+	}, 10_000)
+
+	req.on('close', cleanup)
+	req.on('error', cleanup)
+	function cleanup() {
+		clearInterval(keepAlive)
+		devClientWatcher.unsubscribe(onDevChange)
+	}
 }
 
 

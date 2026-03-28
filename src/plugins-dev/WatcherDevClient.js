@@ -6,7 +6,7 @@ import { docs } from '../app.js'
 
 export const devClientWatcher = new class extends EventEmitter {
 	emit(file) { super.emit('RELOAD', file) }
-	subscribe(listener) { this.once('RELOAD', listener) }
+	subscribe(listener) { this.on('RELOAD', listener) }
 	unsubscribe(listener) { this.removeListener('RELOAD', listener) }
 }
 
