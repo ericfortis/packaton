@@ -33,7 +33,7 @@ export function remapMediaInHTML(mediaHashes, html, mediaRelUrl) {
 }
 
 
-function escapeRegex(literal) {
+function escapeRegex(literal = '') {
 	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
