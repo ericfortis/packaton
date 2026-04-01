@@ -39,10 +39,10 @@ export function router({ srcPath, ignore, mode }) {
 				serveAsset(response, join(import.meta.dirname, url))
 
 			else if (docs.hasRoute(url))
-				await serveDocument(response, docs.fileFor(url), isDev)
+				await serveDocument(response, docs.fileFor(url), url, isDev)
 
 			else if (docs.hasRoute(join(url, 'index')))
-				await serveDocument(response, docs.fileFor(join(url, 'index')), isDev)
+				await serveDocument(response, docs.fileFor(join(url, 'index')), '', isDev)
 
 			else if (req.headers.range)
 				await servePartialContent(response, req.headers, join(srcPath, url))
@@ -56,10 +56,10 @@ export function router({ srcPath, ignore, mode }) {
 	}
 }
 
-async function serveDocument(response, file, isDev) {
+async function serveDocument(response, file, url, isDev) {
 	let html = file.endsWith('.html')
 		? await readFile(file, 'utf8')
-		: (await import(file + '?' + Date.now())).default()
+		: (await import(file + '?' + Date.now())).default(url)
 	if (isDev)
 		html += `<script type="module" src="${WATCHER_DEV}"></script>`
 	response.setHeader('Content-Type', mimeFor('html'))
