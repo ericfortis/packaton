@@ -3,15 +3,14 @@ export interface Config {
 	srcPath?: string
 	assetsDir?: string
 	ignore?: RegExp
-	
 
 	// Dev
-  host?: string,
-  port?: number
-  onReady?: (address: string) => void
-  hotReload?: boolean // For UI dev purposes only
-	watchIgnore?: Array<string|RegExp>
-	
+	host?: string
+	port?: number
+	onReady?: (address: string) => void
+	hotReload?: boolean // For UI dev purposes only
+	watchIgnore?: Array<string | RegExp>
+
 	// Production
 	outputDir?: string
 	outputExtension?: string
@@ -21,4 +20,3 @@ export interface Config {
 	sitemapDomain?: string
 	cspMapEnabled?: boolean
 }
-  

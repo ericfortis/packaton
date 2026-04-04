@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join, dirname } from 'node:path'
-import { rmSync, lstatSync, mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs'
+import { rmSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 
 export const read = f => readFileSync(f, 'utf8')
@@ -16,11 +16,11 @@ export function write(fname, data) {
 	writeFileSync(fname, data, 'utf8')
 }
 
-export function removeDir(dir) { 
-	rmSync(dir, { 
-		recursive: true, 
+export function removeDir(dir) {
+	rmSync(dir, {
+		recursive: true,
 		force: true // allows for removing non-existing directories
-	}) 
+	})
 }
 
 export const sizeOf = f => lstatSync(f).size

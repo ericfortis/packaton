@@ -72,7 +72,7 @@ export class HtmlCompiler {
 		this.scriptsModuleJs = await Promise.all(scripts
 			.filter(([type]) => type === 'module')
 			.map(([, body]) => this.#minifyJS(body, Boolean('isModule'))))
-		
+
 		this.scriptsNonJs = scripts
 			.filter(([type]) => type !== 'application/javascript' && type !== 'module')
 
@@ -89,13 +89,13 @@ export class HtmlCompiler {
 
 	csp() {
 		const cssHash = this.css ? `'${this.hash256(this.css)}'` : '' // TODO maybe self?
-		
+
 		const jsScriptHash = this.scriptsJs ? `'${this.hash256(this.scriptsJs)}'` : '' // TODO maybe self?
 		const jsModulesHashes = this.scriptsModuleJs.map(body => `'${this.hash256(body)}'`).join(' ')
 		const nonJsScriptHashes = this.scriptsNonJs.map(([, body]) => `'${this.hash256(body)}'`).join(' ')
 		const inlineScriptsHashes = this.extractInlineScripts().map(body => `'${this.hash256(body)}'`).join(' ')
 		const externalScriptDomains = this.externalScripts.map(url => `${new URL(url).origin}`).join(' ')
-		
+
 		return [
 			`default-src 'self'`,
 			`img-src 'self' data:`, // data: is for Safari's video player icons and for CSS bg images
@@ -121,7 +121,7 @@ export class HtmlCompiler {
 		this.html = this.html.replace(new RegExp('^.*' + str + '.*\n', 'm'), '')
 	}
 
-	
+
 	extractStyleSheetHrefs() {
 		const reExtractStyleSheets = /(?<=<link\s.*href=")[^"]+\.css/g
 		return Array.from(this.html.matchAll(reExtractStyleSheets), m => m[0])
@@ -147,14 +147,14 @@ export class HtmlCompiler {
 			]
 		})
 	}
-	
+
 	extractInlineScripts() {
 		const reExtractInlineScripts = /<script\b([^>]*?)>([\s\S]*?)<\/script>/g
 		return Array.from(this.html.matchAll(reExtractInlineScripts), m => {
 			const attrs = m[1]
 			const body = m[2]
-			return attrs.includes('src=') 
-				? null 
+			return attrs.includes('src=')
+				? null
 				: body
 		}).filter(Boolean)
 	}

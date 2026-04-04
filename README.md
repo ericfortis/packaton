@@ -1,6 +1,6 @@
 # Packaton WIP
 
-Static Site Generator (SSG). Inlines CSS and JS and 
+Static Site Generator (SSG). Inlines CSS and JS and
 creates a header file with their corresponding CSP hashes.
 
 ## Usage Example
@@ -32,9 +32,8 @@ If you want to use media files in CSS, create a similar function to
 
 ## Production Build
 It crawls the dev server, and saves each route as static html page.
-It saves the pages without the `.html` extension for pretty URLs. 
+It saves the pages without the `.html` extension for pretty URLs.
 See [Pretty routes for static HTML](https://blog.uxtly.com/pretty-routes-for-static-html)
-
 
 
 ## Minifiers

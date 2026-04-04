@@ -1,11 +1,11 @@
 /**
  * You can override this minifier in `config.minifyCSS`
- * 
+ *
  * This program is an oversimplified CSS minifier. It doesn’t
  * try to minify everything, but only what’s safe and easy to minify.
- * 
+ *
  * Why?
- * When I wrote this program, ~2018, some CSS minifiers reordered rules 
+ * When I wrote this program, ~2018, some CSS minifiers reordered rules
  * but that messed up browser-specific prefixes that were used as workarounds.
  */
 

@@ -43,7 +43,7 @@ export async function buildStaticPages(config) {
 
 				const pages = await crawlRoutes(server.address(), docs.routes)
 				const mediaHashes = await renameMediaWithHashes(pDist, MEDIA_REL_URL)
-				
+
 				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
 					const doc = new HtmlCompiler(rawHtml, pSource, {
@@ -52,7 +52,7 @@ export async function buildStaticPages(config) {
 						minifyHTML: config.minifyHTML,
 						mediaRelUrl: MEDIA_REL_URL,
 						mediaHashes
-						
+
 					})
 					await doc.minifyHTML()
 					doc.remapMedia()

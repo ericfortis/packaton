@@ -6,15 +6,15 @@
  * It's based on https://gist.github.com/espretto/1b3cb7e8b01fa7daaaac
  *
  * Why?
- * When I wrote this program, ~2018, I tried a few libraries but some 
+ * When I wrote this program, ~2018, I tried a few libraries but some
  * of them messed up relevant spaces in `<pre>` tags and between tags.
  *
  * We don’t remove newlines because for example `<kbd>` and `<a>`
  * would need special rules to have a space in-place of that newline.
  *
- * 
+ *
  * This algorithm basically collects parts that should not be minified and
- * replaces them with a known magic string "<preserved>". Then, at the end, 
+ * replaces them with a known magic string "<preserved>". Then, at the end,
  * replaces, in order, those magic strings with the original tag and its content.
  */
 

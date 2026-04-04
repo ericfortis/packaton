@@ -1,17 +1,18 @@
 const WATCH_API = '/packaton/watch-dev'
 
-let es = null
+let conn = null
 let timer = null
 
 window.addEventListener('beforeunload', teardown)
 connect()
 function connect() {
-	if (es) return
+	if (conn)
+		return
 
 	clearTimeout(timer)
-	es = new EventSource(WATCH_API)
+	conn = new EventSource(WATCH_API)
 
-	es.onmessage = function (event) {
+	conn.onmessage = function (event) {
 		const file = event.data
 		if (file.endsWith('.css'))
 			hotReloadCSS(file)
@@ -19,7 +20,7 @@ function connect() {
 			location.reload()
 	}
 
-	es.onerror = function () {
+	conn.onerror = function () {
 		console.error('hot reload')
 		teardown()
 		timer = setTimeout(connect, 3000)
@@ -28,8 +29,8 @@ function connect() {
 
 function teardown() {
 	clearTimeout(timer)
-	es?.close()
-	es = null
+	conn?.close()
+	conn = null
 }
 
 async function hotReloadCSS(file) {
