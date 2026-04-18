@@ -15,6 +15,8 @@ export function sitemapPlugin(config, routes) {
 		.join('\n'))
 
 	if (!isFile(outRobots))
-		write(outRobots,
-			`Sitemap: https://${config.sitemapDomain}/sitemap.txt`)
+		write(outRobots, `
+User-agent: *
+Sitemap: https://${config.sitemapDomain}/sitemap.txt
+`.trim())
 }
