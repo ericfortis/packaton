@@ -8,7 +8,7 @@ import { write } from '../utils/fs-utils.js'
  * @param {string} relMediaURL
  */
 export function netiflyAndCloudflareHeadersPlugin(config, cspByRoute, relMediaURL) {
-	const out = join(join(config.outputDir, config.assetsDir), '_headers')
+	const out = join(join(config.outputDir), '_headers')
 
 	const cspHeaders = cspByRoute.map(([route, csp]) => {
 		const r = route === '/index'
