@@ -1,6 +1,6 @@
-import { cpSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { basename, join } from 'node:path'
+import { cpSync, existsSync } from 'node:fs'
 
 import { docs } from './app.js'
 import { router } from './router.js'
@@ -40,6 +40,17 @@ export async function buildStaticPages(config) {
 						// TODO 
 					}
 				})
+
+
+				const wellKnownDir = join(pSource, '.well-known')
+				if (existsSync(wellKnownDir))
+					cpSync(wellKnownDir, join(pDist, '.well-known'), {
+						recursive: true,
+						dereference: true,
+						filter(src) {
+							return basename(src) !== '.DS_Store'
+						}
+					})
 
 				const pages = await crawlRoutes(server.address(), docs.routes)
 				const mediaHashes = await renameMediaWithHashes(pDist, MEDIA_REL_URL)
