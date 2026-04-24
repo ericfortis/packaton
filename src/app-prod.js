@@ -55,6 +55,11 @@ export async function buildStaticPages(config) {
 				const pages = await crawlRoutes(server.address(), docs.routes)
 				const mediaHashes = await renameMediaWithHashes(pDist, MEDIA_REL_URL)
 
+				const headers = {
+					['/' + MEDIA_REL_URL + '/*']: [
+						['Cache-Control', 'public,max-age=31536000,immutable']
+					]
+				}
 				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
 					const doc = new HtmlCompiler(rawHtml, pSource, {
@@ -71,13 +76,16 @@ export async function buildStaticPages(config) {
 					await doc.inlineMinifiedCSS()
 					await doc.inlineMinifiedJS()
 					write(join(pDist, route + config.outputExtension), doc.html)
-					cspByRoute.push([route, doc.csp()])
+					const r = route === '/index' ? '/' : route
+					headers[r] ??= []
+					headers[r].push(['Content-Security-Policy', doc.csp()])
+					headers[r].push(['Cache-Control', 'public,max-age=60'])
 				}
 
 				sitemapPlugin(config, docs.routes)
 				reportSizesPlugin(config, docs.routes)
 				cspNginxMapPlugin(config, cspByRoute)
-				netiflyAndCloudflareHeadersPlugin(config, cspByRoute, MEDIA_REL_URL)
+				write(join(config.outputDir, '_headers'), netiflyAndCloudflareHeadersPlugin(headers))
 			}
 			catch (error) {
 				reject(error)
