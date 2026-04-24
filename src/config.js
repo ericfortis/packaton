@@ -35,6 +35,7 @@ const schema = {
 	minifyHTML: [minifyHTML, optional(Function)],
 	sitemapDomain: ['', optional(String)],
 	cspMapEnabled: [true, optional(Boolean)],
+	routeHeaders: [[], Array.isArray]
 }
 // TODO watch New Routes?
 

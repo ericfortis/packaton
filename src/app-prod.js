@@ -76,10 +76,12 @@ export async function buildStaticPages(config) {
 					await doc.inlineMinifiedCSS()
 					await doc.inlineMinifiedJS()
 					write(join(pDist, route + config.outputExtension), doc.html)
+
 					const r = route === '/index' ? '/' : route
 					headers[r] ??= []
 					headers[r].push(['Content-Security-Policy', doc.csp()])
-					headers[r].push(['Cache-Control', 'public,max-age=60'])
+					for (const h of config.routeHeaders)
+						headers[r].push(h)
 				}
 
 				sitemapPlugin(config, docs.routes)

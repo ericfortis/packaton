@@ -19,4 +19,5 @@ export interface Config {
 	minifyHTML?: (html: string) => Promise<string>
 	sitemapDomain?: string
 	cspMapEnabled?: boolean
+	routeHeaders?: [name: string, value: string][]
 }
