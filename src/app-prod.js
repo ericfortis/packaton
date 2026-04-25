@@ -79,9 +79,10 @@ export async function buildStaticPages(config) {
 
 					const r = route === '/index' ? '/' : route
 					headers[r] ??= []
-					headers[r].push(['Content-Security-Policy', doc.csp()])
 					for (const h of config.routeHeaders)
 						headers[r].push(h)
+					headers[r].push(['Content-Security-Policy', doc.csp()])
+					cspByRoute.push([route, doc.csp()])
 				}
 
 				sitemapPlugin(config, docs.routes)
