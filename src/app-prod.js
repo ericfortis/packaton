@@ -6,8 +6,9 @@ import { docs } from './app.js'
 import { router } from './router.js'
 import { HtmlCompiler } from './plugins-prod/HtmlCompiler.js'
 import { sitemapPlugin } from './plugins-prod/sitemapPlugin.js'
+import { ServerResponse } from './utils/HttpServerResponse.js'
 import { reportSizesPlugin } from './plugins-prod/reportSizesPlugin.js'
-import { write, removeDir, } from './utils/fs-utils.js'
+import { write, removeDir, } from './utils/fs.js'
 import { cspNginxMapPlugin } from './plugins-prod/cspNginxMapPlugin.js'
 import { renameMediaWithHashes } from './plugins-prod/media-remaper.js'
 import { netiflyAndCloudflareHeadersPlugin } from './plugins-prod/netiflyAndCloudflareHeadersPlugin.js'
@@ -25,7 +26,7 @@ export async function buildStaticPages(config) {
 		const pDist = config.outputDir
 		const pDistAssets = join(pDist, config.assetsDir)
 
-		const server = createServer(router(config))
+		const server = createServer({ ServerResponse }, router(config))
 		server.on('error', reject)
 		server.listen(0, '127.0.0.1', async () => {
 			docs.init(config.srcPath, config.ignore)

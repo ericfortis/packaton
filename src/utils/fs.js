@@ -1,7 +1,8 @@
-import { readdir } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { join, dirname } from 'node:path'
-import { rmSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { readdir, realpath } from 'node:fs/promises'
+import { join, dirname, sep, resolve } from 'node:path'
+import { rmSync, mkdirSync, readFileSync, writeFileSync, lstatSync } from 'node:fs'
+
 
 
 export const read = f => readFileSync(f, 'utf8')
@@ -46,4 +47,18 @@ export const replaceExt = (f, ext) => {
 		parts.pop()
 	parts.push(ext)
 	return parts.join('.')
+}
+
+/** @returns {string | null} absolute path if it’s within `baseDir` */
+export async function resolveIn(baseDir, file) {
+	try {
+		const parent = await realpath(baseDir)
+		const child = resolve(join(parent, file))
+		return child.startsWith(join(parent, sep))
+			? child
+			: null
+	}
+	catch {
+		return null
+	}
 }

@@ -3,6 +3,7 @@ import { createServer } from 'node:http'
 
 import { router } from './router.js'
 import { watchDev } from './plugins-dev/WatcherDevClient.js'
+import { ServerResponse } from './utils/HttpServerResponse.js'
 
 
 /**
@@ -16,7 +17,7 @@ export function devStaticPages(config) {
 		if (config.hotReload)
 			watchDev(config.srcPath, config.watchIgnore)
 
-		const server = createServer(router(config))
+		const server = createServer({ ServerResponse }, router(config))
 		server.on('error', reject)
 		server.listen(config.port, config.host, () => {
 			const addr = `http://${server.address().address}:${server.address().port}`

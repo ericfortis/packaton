@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 
-import { isDirectory } from './utils/fs-utils.js'
+import { isDirectory } from './utils/fs.js'
 import { openInBrowser } from './plugins-dev/openInBrowser.js'
 
 import { minifyJS } from './plugins-prod/minifyJS.js'

@@ -1,4 +1,4 @@
-import { write } from '../utils/fs-utils.js'
+import { write } from '../utils/fs.js'
 import { join } from 'node:path'
 
 

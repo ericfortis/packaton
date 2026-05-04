@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { read, sizeOf, sha1, saveAsJSON, isFile } from '../utils/fs-utils.js'
+import { read, sizeOf, sha1, saveAsJSON, isFile } from '../utils/fs.js'
 
 
 export function reportSizesPlugin(config, routes) {

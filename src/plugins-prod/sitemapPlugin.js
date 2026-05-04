@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { write, isFile } from '../utils/fs-utils.js'
+import { write, isFile } from '../utils/fs.js'
 
 
 export function sitemapPlugin(config, routes) {
