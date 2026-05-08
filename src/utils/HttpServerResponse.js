@@ -19,7 +19,9 @@ export class ServerResponse extends http.ServerResponse {
 			await pipeline(fs.createReadStream(file), this)
 		}
 		catch (err) {
-			if (this.headersSent)
+			if (this.headersSent
+				|| err.code === 'ERR_STREAM_PREMATURE_CLOSE'
+				|| err.code === 'ERR_STREAM_UNABLE_TO_PIPE')
 				this.destroy()
 			else if (err.code === 'ENOENT')
 				this.notFound()
@@ -56,7 +58,9 @@ export class ServerResponse extends http.ServerResponse {
 			await pipeline(fs.createReadStream(file, { start, end }), this)
 		}
 		catch (err) {
-			if (this.headersSent)
+			if (this.headersSent
+				|| err.code === 'ERR_STREAM_PREMATURE_CLOSE'
+				|| err.code === 'ERR_STREAM_UNABLE_TO_PIPE')
 				this.destroy()
 			else if (err.code === 'ENOENT')
 				this.notFound()
@@ -64,7 +68,7 @@ export class ServerResponse extends http.ServerResponse {
 				throw err
 		}
 	}
-	
+
 	badRequest() {
 		this.statusCode = 400
 		this.end()

@@ -69,9 +69,9 @@ export function router({ srcPath, ignore, mode }) {
 				if (!f)
 					response.forbidden('Filename path resolves outside config.srcPath')
 				else if (req.headers.range)
-					response.partialContent(f)
+					await response.partialContent(f)
 				else
-					response.file(f)
+					await response.file(f)
 			}
 		}
 		catch (err) {
