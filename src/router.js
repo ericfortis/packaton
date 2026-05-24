@@ -21,8 +21,7 @@ const API = {
 const WATCHER_DEV = `/plugins-dev/watcherDev.js`
 
 /** @param {Config} config */
-export function router({ srcPath, ignore, mode }) {
-	const DEV = mode === 'development'
+export function router({ srcPath, ignore, hotReload }) {
 	const WORKSPACE_ID = randomUUID()
 	docs.init(srcPath, ignore)
 
@@ -60,9 +59,9 @@ export function router({ srcPath, ignore, mode }) {
 				})
 
 			else if (docs.hasRoute(url))
-				await serveDocument(response, docs.fileFor(url), url, DEV)
+				await serveDocument(response, docs.fileFor(url), url, hotReload)
 			else if (docs.hasRoute(join(url, 'index')))
-				await serveDocument(response, docs.fileFor(join(url, 'index')), '', DEV)
+				await serveDocument(response, docs.fileFor(join(url, 'index')), '', hotReload)
 
 			else {
 				const f = await resolveIn(srcPath, url)
@@ -81,11 +80,11 @@ export function router({ srcPath, ignore, mode }) {
 	}
 }
 
-async function serveDocument(response, file, url, isDev) {
+async function serveDocument(response, file, url, hotReload) {
 	let html = file.endsWith('.html')
 		? await readFile(file, 'utf8')
 		: (await import(pathToFileURL(file))).default(url)
-	if (isDev)
+	if (hotReload)
 		html += `<script type="module" src="${WATCHER_DEV}?url=${API.watchHotReload}"></script>`
 	response.setHeader('Content-Type', mimeFor('.html'))
 	response.end(html)
