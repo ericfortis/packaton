@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 
 import { read } from '../utils/fs.js'
-import { remapMediaInHTML } from './media-remaper.js'
+import { remapMediaInHTML, remapMediaInCSS } from './media-remaper.js'
 
 
 export class HtmlCompiler {
@@ -48,6 +48,7 @@ export class HtmlCompiler {
 			}
 		}
 		if (this.css) {
+			this.css = remapMediaInCSS(this.mediaHashes, this.css, this.mediaRelUrl)
 			this.css = await this.#minifyCSS(this.css)
 			this.#appendToHead(`<style>${this.css}</style>`)
 		}

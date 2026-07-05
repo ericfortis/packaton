@@ -32,6 +32,17 @@ export function remapMediaInHTML(mediaHashes, html, mediaRelUrl) {
 	})
 }
 
+export function remapMediaInCSS(mediaHashes, css, mediaRelUrl) {
+	const mURL = escapeRegex(mediaRelUrl)
+	const reFindMedia = new RegExp(`url\\((/?)(${mURL}/[^)]*)\\)`, 'g')
+	return css.replace(reFindMedia, (_, optLeadingSlash, url) => {
+		const hashedName = mediaHashes.get(url)
+		if (!hashedName)
+			throw new Error(`ERROR: Missing ${url}`)
+		return `url(${optLeadingSlash}${hashedName})`
+	})
+}
+
 
 function escapeRegex(literal = '') {
 	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
