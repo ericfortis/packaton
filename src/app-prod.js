@@ -9,9 +9,7 @@ import { sitemapPlugin } from './plugins-prod/sitemapPlugin.js'
 import { ServerResponse } from './utils/HttpServerResponse.js'
 import { reportSizesPlugin } from './plugins-prod/reportSizesPlugin.js'
 import { write, removeDir, } from './utils/fs.js'
-import { cspNginxMapPlugin } from './plugins-prod/cspNginxMapPlugin.js'
 import { renameMediaWithHashes } from './plugins-prod/media-remaper.js'
-import { netiflyAndCloudflareHeadersPlugin } from './plugins-prod/netiflyAndCloudflareHeadersPlugin.js'
 
 
 /**
@@ -61,7 +59,6 @@ export async function buildStaticPages(config) {
 						['Cache-Control', 'public,max-age=31536000,immutable']
 					]
 				}
-				const cspByRoute = []
 				for (const [route, rawHtml] of pages) {
 					const doc = new HtmlCompiler(rawHtml, pSource, {
 						minifyJS: config.minifyJS,
@@ -76,20 +73,12 @@ export async function buildStaticPages(config) {
 					// TODO remap media in css and js
 					await doc.inlineMinifiedCSS()
 					await doc.inlineMinifiedJS()
+					doc.inlineCSP()
 					write(join(pDist, route + config.outputExtension), doc.html)
-
-					const r = route === '/index' ? '/' : route
-					headers[r] ??= []
-					for (const h of config.routeHeaders)
-						headers[r].push(h)
-					headers[r].push(['Content-Security-Policy', doc.csp()])
-					cspByRoute.push([route, doc.csp()])
 				}
 
 				sitemapPlugin(config, docs.routes)
 				reportSizesPlugin(config, docs.routes)
-				cspNginxMapPlugin(config, cspByRoute)
-				write(join(config.outputDir, '_headers'), netiflyAndCloudflareHeadersPlugin(headers))
 			}
 			catch (error) {
 				reject(error)

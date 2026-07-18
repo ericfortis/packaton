@@ -86,6 +86,9 @@ export class HtmlCompiler {
 			this.#appendToBody(`<script type="${type}">${body}</script>`)
 	}
 
+	inlineCSP() {
+		this.#prependToHead(`<meta http-equiv="Content-Security-Policy" content="${this.csp()}">`)
+	}
 
 	csp() {
 		const cssHash = this.css ? `'${this.hash256(this.css)}'` : '' // TODO maybe self?
@@ -101,7 +104,6 @@ export class HtmlCompiler {
 			`img-src 'self' data:`, // data: is for Safari's video player icons and for CSS bg images
 			`style-src ${cssHash}`,
 			`script-src-elem ${nonJsScriptHashes} ${jsScriptHash} ${jsModulesHashes} ${externalScriptDomains} ${inlineScriptsHashes} 'self'`,
-			`frame-ancestors 'none'`
 		].join('; ')
 	}
 
@@ -111,6 +113,9 @@ export class HtmlCompiler {
 			: ''
 	}
 
+	#prependToHead(tag) {
+		this.html = this.html.replace('<head>', `<head>\n${tag}`)
+	}
 	#appendToHead(tag) {
 		this.html = this.html.replace('</head>', `\n${tag}</head>`)
 	}
