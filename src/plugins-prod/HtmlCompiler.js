@@ -39,14 +39,14 @@ export class HtmlCompiler {
 	}
 
 	async inlineMinifiedCSS() {
-		for (const sheet of this.extractStyleSheetHrefs()) {
+		for (const sheet of this.extractStyleSheetHrefs())
 			if (sheet.startsWith('http')) // TODO clean
 				this.externalCSS.push(sheet)
 			else {
 				this.css += read(join(this.pSource, sheet))
 				this.removeLineContaining(`href="${sheet}"`)
 			}
-		}
+
 		if (this.css) {
 			this.css = remapMediaInCSS(this.mediaHashes, this.css, this.mediaRelUrl)
 			this.css = await this.#minifyCSS(this.css)
@@ -56,14 +56,13 @@ export class HtmlCompiler {
 
 	async inlineMinifiedJS() {
 		const scripts = []
-		for (const [src, type] of this.extractScriptSources()) {
+		for (const [src, type] of this.extractScriptSources())
 			if (src.startsWith('http')) // TODO clean
 				this.externalScripts.push(src)
 			else {
 				this.removeLineContaining(`src="${src}"`)
 				scripts.push([type, read(join(this.pSource, src))])
 			}
-		}
 
 		this.scriptsJs = await this.#minifyJS(scripts
 			.filter(([type]) => type === 'application/javascript')
