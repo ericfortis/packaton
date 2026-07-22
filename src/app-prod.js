@@ -54,11 +54,6 @@ export async function buildStaticPages(config) {
 				const pages = await crawlRoutes(server.address(), docs.routes)
 				const mediaHashes = await renameMediaWithHashes(pDist, MEDIA_REL_URL)
 
-				const headers = {
-					['/' + MEDIA_REL_URL + '/*']: [
-						['Cache-Control', 'public,max-age=31536000,immutable']
-					]
-				}
 				for (const [route, rawHtml] of pages) {
 					const doc = new HtmlCompiler(rawHtml, pSource, {
 						minifyJS: config.minifyJS,
